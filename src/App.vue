@@ -1,5 +1,7 @@
 <template>
-  <Navbar />
+  <el-affix :offset="0">
+    <Navbar />
+  </el-affix>
   <router-view />
 </template>
 <script setup>
@@ -17,7 +19,6 @@ import Navbar from '@/components/Navbar'
   height: 3px;
   position: absolute;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #92c4da;
 }

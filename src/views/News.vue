@@ -31,6 +31,7 @@
             class="search-result"
             v-for="data of searchNewsList"
             :key="data._id"
+            @click="handleToDetail(data._id)"
           >
             {{ data.title }}
           </div>
@@ -43,7 +44,11 @@
     <div class="topnews">
       <el-row :gutter="15">
         <el-col :span="6" v-for="data of topNewsList" :key="data._id">
-          <el-card :body-style="{ padding: '0px' }" shadow="hover">
+          <el-card
+            :body-style="{ padding: '0px' }"
+            shadow="hover"
+            @click="handleToDetail(data._id)"
+          >
             <div
               class="image"
               :style="{
@@ -67,24 +72,44 @@
         :name="data.name"
         :key="data.name"
       >
-        <div v-for="item of tabNews[data.name]" :key="item._id">
-          <el-card :body-style="{ padding: '0px' }" shadow="hover">
-            <div
-              class="image"
-              :style="{
-                backgroundImage: `url(http://localhost:3000${item.cover})`,
-              }"
-            ></div>
-            <div style="padding: 14px">
-              <div :title="item.title" class="title">{{ item.title }}</div>
-              <div class="bottom">
-                <time class="time">{{ formatTime(item.editTime) }}</time>
-              </div>
+        <el-row :gutter="15">
+          <el-col :span="18">
+            <div v-for="item of tabNews[data.name]" :key="item._id">
+              <el-card
+                :body-style="{ padding: '0px' }"
+                shadow="hover"
+                @click="handleToDetail(item._id)"
+              >
+                <div
+                  class="image"
+                  :style="{
+                    backgroundImage: `url(http://localhost:3000${item.cover})`,
+                  }"
+                ></div>
+                <div style="padding: 14px; float: left">
+                  <div :title="item.title" class="title">{{ item.title }}</div>
+                  <div class="bottom">
+                    <time class="time">{{ formatTime(item.editTime) }}</time>
+                  </div>
+                </div>
+              </el-card>
             </div>
-          </el-card>
-        </div>
+          </el-col>
+          <el-col :span="6">
+            <el-timeline>
+              <el-timeline-item
+                v-for="(item, index) in tabNews[data.name]"
+                :key="index"
+                :timestamp="formatTime(item.editTime)"
+              >
+                {{ item.title }}
+              </el-timeline-item>
+            </el-timeline>
+          </el-col>
+        </el-row>
       </el-tab-pane>
     </el-tabs>
+    <el-backtop :visibility-height="100" :right="100" :bottom="100" />
   </div>
 </template>
 <script setup>
@@ -93,7 +118,9 @@ import axios from 'axios'
 import { ref, onMounted, computed } from 'vue'
 import moment from 'moment'
 import _ from 'lodash'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const activeName = ref(1)
 moment.locale('zh-cn')
 const searchText = ref('')
@@ -123,6 +150,9 @@ const tabsList = [
   },
 ]
 const tabNews = computed(() => _.groupBy(newsList.value, item => item.categroy))
+const handleToDetail = item => {
+  router.push(`/new-detail/${item}`)
+}
 </script>
 <style lang="scss" scoped>
 .container {
@@ -162,10 +192,14 @@ const tabNews = computed(() => _.groupBy(newsList.value, item => item.categroy))
   }
   .tabs {
     margin: 20px 10px;
+    .el-card {
+      margin: 10px 0;
+    }
     .image {
-      width:20%;
+      width: 20%;
       height: 200px;
       background-size: cover;
+      float: left;
     }
     .time {
       font-size: 14px;
